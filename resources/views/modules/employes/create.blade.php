@@ -14,7 +14,7 @@
 
         <form method="POST" action="{{ route('employes.store') }}" class="crud-form">
             @csrf
-            @include('employes._form', ['submitLabel' => 'Creer'])
+            @include('modules.employes._form', ['submitLabel' => 'Creer'])
         </form>
     </section>
 @endsection

@@ -11,7 +11,9 @@
                 <p>Fiche detaillee de l employe.</p>
             </div>
             <div class="actions-row">
-                <a href="{{ route('employes.edit', $employe) }}" class="btn-primary">Modifier</a>
+                @can('update', $employe)
+                    <a href="{{ route('employes.edit', $employe) }}" class="btn-primary">Modifier</a>
+                @endcan
                 <a href="{{ route('employes.index') }}" class="btn-secondary">Retour liste</a>
             </div>
         </div>

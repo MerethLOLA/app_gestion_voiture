@@ -17,18 +17,13 @@
 
         <form method="POST" action="{{ route('login.attempt') }}" class="auth-form">
             @csrf
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus>
+            <label for="login">Email ou nom utilisateur</label>
+            <input id="login" name="login" type="text" value="{{ old('login') }}" required autofocus>
 
             <label for="password">Mot de passe</label>
             <input id="password" name="password" type="password" required>
 
-            <label class="remember-row">
-                <input type="checkbox" name="remember">
-                <span>Se souvenir de moi</span>
-            </label>
-
-            @error('email')
+            @error('login')
                 <p class="auth-error">{{ $message }}</p>
             @enderror
 

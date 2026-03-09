@@ -32,7 +32,7 @@ class ImageVoiture extends Model
     ];
 
     /**
-     * Relation: Une image appartient à une voiture
+     * Relation : Une image appartient à une voiture
      */
     public function voiture()
     {
@@ -40,7 +40,7 @@ class ImageVoiture extends Model
     }
 
     /**
-     * Obtenir l'URL complète de l'image
+     * Accesseur : URL complète
      */
     public function getUrlAttribute()
     {
@@ -48,7 +48,7 @@ class ImageVoiture extends Model
     }
 
     /**
-     * Scope: Images principales uniquement
+     * Scope : Images principales
      */
     public function scopePrincipales($query)
     {
@@ -56,7 +56,7 @@ class ImageVoiture extends Model
     }
 
     /**
-     * Scope: Par type d'image
+     * Scope : Par type
      */
     public function scopeParType($query, $type)
     {

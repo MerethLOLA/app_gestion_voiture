@@ -9,11 +9,16 @@ use Illuminate\View\View;
 
 class EmployeController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Employe::class, 'employe');
+    }
+
     public function index(): View
     {
         $employes = Employe::query()->orderByDesc('id')->paginate(12);
 
-        return view('employes.index', [
+        return view('modules.employes.index', [
             'employes' => $employes,
             'modules' => $this->modules(),
         ]);
@@ -21,7 +26,7 @@ class EmployeController extends Controller
 
     public function create(): View
     {
-        return view('employes.create', [
+        return view('modules.employes.create', [
             'modules' => $this->modules(),
         ]);
     }
@@ -50,7 +55,7 @@ class EmployeController extends Controller
     {
         $employe->load('user');
 
-        return view('employes.show', [
+        return view('modules.employes.show', [
             'employe' => $employe,
             'modules' => $this->modules(),
         ]);
@@ -58,7 +63,7 @@ class EmployeController extends Controller
 
     public function edit(Employe $employe): View
     {
-        return view('employes.edit', [
+        return view('modules.employes.edit', [
             'employe' => $employe,
             'modules' => $this->modules(),
         ]);

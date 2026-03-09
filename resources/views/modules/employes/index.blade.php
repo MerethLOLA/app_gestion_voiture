@@ -10,7 +10,9 @@
                 <h3>Liste des employes</h3>
                 <p>Gestion de l equipe commerciale et administrative.</p>
             </div>
-            <a href="{{ route('employes.create') }}" class="btn-primary">Nouveau employe</a>
+            @can('create', \App\Models\Employe::class)
+                <a href="{{ route('employes.create') }}" class="btn-primary">Nouveau employe</a>
+            @endcan
         </div>
 
         @if(session('status'))
@@ -42,12 +44,16 @@
                             <td>
                                 <div class="row-actions">
                                     <a href="{{ route('employes.show', $employe) }}" class="btn-icon">Voir</a>
-                                    <a href="{{ route('employes.edit', $employe) }}" class="btn-icon">Editer</a>
-                                    <form method="POST" action="{{ route('employes.destroy', $employe) }}" onsubmit="return confirm('Supprimer cet employe ?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-icon danger">Supprimer</button>
-                                    </form>
+                                    @can('update', $employe)
+                                        <a href="{{ route('employes.edit', $employe) }}" class="btn-icon">Editer</a>
+                                    @endcan
+                                    @can('delete', $employe)
+                                        <form method="POST" action="{{ route('employes.destroy', $employe) }}" onsubmit="return confirm('Supprimer cet employe ?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-icon danger">Supprimer</button>
+                                        </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

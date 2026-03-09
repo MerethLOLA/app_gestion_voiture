@@ -15,7 +15,7 @@
         <form method="POST" action="{{ route('employes.update', $employe) }}" class="crud-form">
             @csrf
             @method('PUT')
-            @include('employes._form', ['submitLabel' => 'Enregistrer'])
+            @include('modules.employes._form', ['submitLabel' => 'Enregistrer'])
         </form>
     </section>
 @endsection

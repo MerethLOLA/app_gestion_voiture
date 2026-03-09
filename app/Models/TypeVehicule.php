@@ -11,13 +11,30 @@ class TypeVehicule extends Model
 
     protected $table = 'types_vehicules';
 
-    protected $fillable = ['nom', 'description'];
+    protected $fillable = [
+        'nom',
+        'description',
+    ];
+
+    const UPDATED_AT = null;
+
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
 
     /**
-     * Relation: Un type a plusieurs voitures
+     * Relation : Un type a plusieurs voitures
      */
     public function voitures()
     {
         return $this->hasMany(Voiture::class, 'id_type_vehicule');
+    }
+
+    /**
+     * Accesseur : Nombre de voitures
+     */
+    public function getNombreVoituresAttribute()
+    {
+        return $this->voitures()->count();
     }
 }

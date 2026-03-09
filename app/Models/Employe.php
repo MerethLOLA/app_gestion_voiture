@@ -4,37 +4,74 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Employe extends Model
 {
     use HasFactory;
 
-    protected $connection = 'mysql';
-
-    protected $table = 'Employes';
-
-    protected $primaryKey = 'id';
-
-    public $incrementing = true;
-
-    public $timestamps = false;
-
-    protected $keyType = 'int';
+    protected $table = 'employes';
 
     protected $fillable = [
         'nom',
         'prenom',
-        'email',
         'poste',
         'adresse',
+        'email',
         'salaire',
         'date_embauche',
         'contrat',
     ];
 
-    public function user(): HasOne
+    protected $casts = [
+        'date_embauche' => 'date',
+        'salaire' => 'decimal:2',
+    ];
+
+    /**
+     * Relation : Un employé peut avoir un compte user
+     */
+    public function user()
     {
-        return $this->hasOne(User::class, 'id_employe', 'id');
+        return $this->hasOne(User::class, 'id_employe');
+    }
+
+    /**
+     * Relation : Un employé réalise plusieurs ventes
+     */
+    public function ventes()
+    {
+        return $this->hasMany(Vente::class, 'id_employe');
+    }
+
+    /**
+     * Accesseur : Nom complet
+     */
+    public function getNomCompletAttribute()
+    {
+        return "{$this->prenom} {$this->nom}";
+    }
+
+    /**
+     * Scope : Employés avec compte
+     */
+    public function scopeAvecCompte($query)
+    {
+        return $query->has('user');
+    }
+
+    /**
+     * Scope : Employés sans compte
+     */
+    public function scopeSansCompte($query)
+    {
+        return $query->doesntHave('user');
+    }
+
+    /**
+     * Scope : Par poste
+     */
+    public function scopeParPoste($query, $poste)
+    {
+        return $query->where('poste', $poste);
     }
 }

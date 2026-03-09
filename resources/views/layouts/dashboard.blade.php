@@ -29,11 +29,34 @@
                 </a>
 
                 @foreach($modules as $slug => $module)
-                    @php($moduleHref = $slug === 'employes' ? route('employes.index') : route('module.show', $slug))
-                    @php($isModuleActive = $slug === 'employes' ? request()->routeIs('employes.*') : request()->is('gestion/' . $slug))
-                    <a href="{{ $moduleHref }}" class="menu-link {{ $isModuleActive ? 'is-active' : '' }}">
-                        {{ $module['title'] }}
-                    </a>
+                    @php
+                        $user = auth()->user();
+                        $modulePermissions = [
+                            'clients' => ['manage_clients'],
+                            'fournisseurs' => ['view_fournisseurs', 'manage_fournisseurs'],
+                            'employes' => ['view_employes', 'manage_employes'],
+                            'voitures' => ['manage_voitures'],
+                            'facturations' => ['manage_factures'],
+                            'paiements' => ['manage_paiements'],
+                            'garanties' => ['manage_voitures'],
+                            'documents' => ['manage_voitures'],
+                            'categorie_voiture' => ['manage_voitures'],
+                        ];
+                        $canAccessModule = collect($modulePermissions[$slug] ?? [])
+                            ->contains(fn ($perm) => $user && $user->hasPermission($perm));
+                    @endphp
+
+                    @if($canAccessModule)
+                        @php($moduleHref = $slug === 'employes' ? route('employes.index') : route('module.show', $slug))
+                        @php($isModuleActive = $slug === 'employes' ? request()->routeIs('employes.*') : request()->is('gestion/' . $slug . '*'))
+                        <a href="{{ $moduleHref }}" class="menu-link {{ $isModuleActive ? 'is-active' : '' }}">
+                            {{ $module['title'] }}
+                        </a>
+                    @else
+                        <span class="menu-link" aria-disabled="true">
+                            {{ $module['title'] }} (acces restreint)
+                        </span>
+                    @endif
                 @endforeach
             </nav>
         </div>
@@ -59,7 +82,7 @@
                     Systeme actif
                 </div>
                 <div class="user-box">
-                    <span>{{ auth()->user()->name }}</span>
+                    <span>{{ auth()->user()->username ?? auth()->user()->email }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="logout-btn">Deconnexion</button>

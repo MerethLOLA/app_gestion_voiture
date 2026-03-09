@@ -4,6 +4,17 @@
 @section('page_title', $moduleTitle)
 
 @section('content')
+    @if($currentModule === 'employes' && ! auth()->user()->can('viewAny', \App\Models\Employe::class))
+        <section class="panel">
+            <div class="panel-head">
+                <div>
+                    <h3>Acces restreint</h3>
+                    <p>Vous n'avez pas acces a cette page.</p>
+                </div>
+                <a href="{{ route('dashboard') }}" class="btn-secondary">Retour au tableau de bord</a>
+            </div>
+        </section>
+    @else
     <section class="panel">
         <div class="panel-head">
             <div>
@@ -128,4 +139,5 @@
             <p class="feedback error">Une reference existe deja.</p>
         </article>
     </section>
+    @endif
 @endsection

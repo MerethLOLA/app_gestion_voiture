@@ -3,15 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $connection = 'mysql';
+    protected $table = 'users';
 
     protected $fillable = [
         'username',
@@ -25,7 +26,6 @@ class User extends Authenticatable
 
     protected $hidden = [
         'password_hash',
-        'remember_token',
     ];
 
     protected function casts(): array
@@ -33,102 +33,34 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'last_login' => 'datetime',
+            'password_hash' => 'hashed',
         ];
     }
 
-    public function getAuthPassword(): string
-    {
-        return $this->password_hash ?? $this->password ?? '';
-    }
-
-    public function getNameAttribute(): string
-    {
-        return $this->attributes['name'] ?? $this->attributes['username'] ?? '';
-    }
-
-    /**
-     * Relation: Employé lié
-     */
-    public function employe()
+    public function employe(): BelongsTo
     {
         return $this->belongsTo(Employe::class, 'id_employe');
     }
 
-    /**
-     * Obtenir toutes les permissions de l'utilisateur
-     */
-    public function permissions()
+    public function getAuthPassword(): string
     {
-        return DB::table('permissions')
-            ->join('role_permissions', 'permissions.id', '=', 'role_permissions.permission_id')
-            ->where('role_permissions.role', $this->role)
-            ->pluck('permissions.nom')
-            ->toArray();
+        return (string) $this->password_hash;
     }
 
-    /**
-     * Vérifier si l'utilisateur a une permission spécifique
-     */
-    public function hasPermission(string $permissionName): bool
+    public function hasPermission(string $permission): bool
     {
-        return in_array($permissionName, $this->permissions());
-    }
-
-    /**
-     * Vérifier si l'utilisateur a l'une des permissions données
-     */
-    public function hasAnyPermission(array $permissions): bool
-    {
-        foreach ($permissions as $permission) {
-            if ($this->hasPermission($permission)) {
-                return true;
-            }
+        if (in_array($this->role, ['admin', 'super_admin'], true)) {
+            return true;
         }
-        return false;
-    }
 
-    /**
-     * Vérifier si l'utilisateur a toutes les permissions données
-     */
-    public function hasAllPermissions(array $permissions): bool
-    {
-        foreach ($permissions as $permission) {
-            if (!$this->hasPermission($permission)) {
-                return false;
-            }
+        try {
+            return RolePermission::query()
+                ->join('permissions', 'permissions.id', '=', 'role_permissions.permission_id')
+                ->where('role_permissions.role', $this->role)
+                ->where('permissions.nom', $permission)
+                ->exists();
+        } catch (QueryException) {
+            return false;
         }
-        return true;
-    }
-
-    /**
-     * Vérifier si l'utilisateur est un cadre dirigeant
-     */
-    public function isExecutive(): bool
-    {
-        return in_array($this->role, ['pdg', 'directeur_general', 'directeur_commercial']);
-    }
-
-    /**
-     * Vérifier si l'utilisateur peut voir les fournisseurs
-     */
-    public function canViewFournisseurs(): bool
-    {
-        return $this->hasPermission('view_fournisseurs');
-    }
-
-    /**
-     * Vérifier si l'utilisateur peut voir les employés
-     */
-    public function canViewEmployes(): bool
-    {
-        return $this->hasPermission('view_employes');
-    }
-
-    /**
-     * Vérifier si l'utilisateur peut voir les salaires
-     */
-    public function canViewSalaires(): bool
-    {
-        return $this->hasPermission('view_salaires');
     }
 }
